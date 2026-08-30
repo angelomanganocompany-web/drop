@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Commerce - Collezione Esclusiva</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header>
+        <div class="logo" onclick="switchView('home')">E-Commerce</div>
+        <div class="search-bar-container">
+            <div class="search-wrapper">
+                <input type="text" id="search-input" class="search-input" placeholder="Cerca articoli..." onkeyup="filterProducts()">
+                <span class="search-icon-symbol">🔍</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <button class="cart-icon" onclick="switchView('cart')">Carrello (<span id="cart-count">0</span>)</button>
+        </div>
+    </header>
+
+    <div id="home-view" class="view active">
+        <section class="hero-carousel-container" id="hero-section">
+            <div class="carousel-track" id="carousel-track">
+                <!-- Carousel slides -->
+            </div>
+            <div class="carousel-indicators" id="carousel-indicators"></div>
+        </section>
+
+        <section class="catalog">
+            <h2>Tutti i Prodotti</h2>
+            <div class="product-grid" id="product-grid"></div>
+        </section>
+    </div>
+
+    <div id="cart-view" class="view">
+        <div class="cart-page">
+            <h2>Il tuo Carrello</h2>
+            <div class="cart-items-list" id="cart-items-container"></div>
+            <div class="cart-summary" id="cart-summary-section">
+                <div class="cart-total" id="cart-total-price">Totale: € 0,00</div>
+                <button class="btn btn-primary" onclick="checkout()" style="max-width: 250px;">Procedi all'Ordine</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 E-Commerce. Tutti i diritti riservati.</p>
+    </footer>
+
+    <div id="toast" class="toast">Prodotto aggiunto al carrello!</div>
+    <script src="js/app.js" defer></script>
+</body>
+</html>
