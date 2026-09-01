@@ -2,6 +2,8 @@ const NETLIFY_API_URL = "https://exquisite-truffle-3d707a.netlify.app/.netlify/f
 
 let cart = [];
 let loadedProducts = [];
+let selectedVariantsMap = {}; // Tracks selected options per product ID (e.g., { "10604421513482": { "Size": "M" } })
+
 let currentConfig = { 
     mode: "shopify", 
     redirectUrl: "", 
@@ -9,38 +11,84 @@ let currentConfig = {
     pythonServerUrl: "http://localhost:5000" 
 };
 
-// Prodotti di Default Reali (Fallback immediato con il catalogo Shopify reale per garantire il funzionamento 100% offline o con CORS)
+// Real Default Products with exact Shopify Variant IDs and Options
 const DEFAULT_PRODUCTS = [
     {
         id: "10604421513482",
-        variantId: "53594685374730",
+        variantId: "53594794656010",
         title: "Men’s Long Sleeve Shirt",
         price: 15.42,
-        description: "Maglia a maniche lunghe da uomo in morbido cotone, versatile ed elegante.",
+        description: "Premium men's long sleeve shirt crafted from soft breathable cotton. Versatile and elegant.",
         image: "https://cdn.shopify.com/s/files/1/0961/7529/2682/files/unisex-long-sleeve-shirt-black-back-6a930a6dc0160.jpg?v=1788021378",
-        is_hero: true
+        is_hero: true,
+        options: [
+            { name: "Size", values: ["S", "M", "L", "XL", "2XL", "3XL", "4XL"] }
+        ],
+        variants: [
+            { id: "53594794656010", title: "S", price: 15.42, options: { "Size": "S" } },
+            { id: "53594794688778", title: "M", price: 15.42, options: { "Size": "M" } },
+            { id: "53594794721546", title: "L", price: 15.42, options: { "Size": "L" } },
+            { id: "53594794754314", title: "XL", price: 15.42, options: { "Size": "XL" } },
+            { id: "53594794787082", title: "2XL", price: 15.42, options: { "Size": "2XL" } },
+            { id: "53594794819850", title: "3XL", price: 15.42, options: { "Size": "3XL" } },
+            { id: "53594794852618", title: "4XL", price: 15.42, options: { "Size": "4XL" } }
+        ]
     },
     {
         id: "10604417876234",
-        variantId: "53594676527370",
+        variantId: "53594768867594",
         title: "Unisex classic tee",
         price: 7.02,
-        description: "T-shirt classica unisex 100% cotone, traspirante e confortevole per ogni giorno.",
+        description: "100% cotton unisex classic t-shirt, breathable and durable for everyday comfort.",
         image: "https://cdn.shopify.com/s/files/1/0961/7529/2682/files/unisex-classic-tee-white-front-and-back-6a9306ae8db45.jpg?v=1788020415",
-        is_hero: false
+        is_hero: false,
+        options: [],
+        variants: [
+            { id: "53594768867594", title: "Default Title", price: 7.02, options: {} }
+        ]
     },
     {
         id: "10604369215754",
         variantId: "53594513309962",
         title: "Hoody Imperial",
         price: 10.82,
-        description: "Felpa sportiva Hoody Imperial con cappuccio e zip, calda e resistente.",
+        description: "Sporty Imperial hoodie with adjustable drawstring hood and full zip. Cozy, warm and stylish.",
         image: "https://cdn.shopify.com/s/files/1/0961/7529/2682/files/S65afb369de854f8bb995fb02457dd708L.webp?v=1788014417",
-        is_hero: false
+        is_hero: false,
+        options: [
+            { name: "Color", values: ["Black", "Navy Blue", "Gray", "Brown", "Khaki", "Red"] },
+            { name: "Size", values: ["S", "M", "L", "XL", "XXL", "XXXL"] }
+        ],
+        variants: [
+            { id: "53594513309962", title: "Black / S", price: 10.82, options: { "Color": "Black", "Size": "S" } },
+            { id: "53594513408266", title: "Black / M", price: 10.82, options: { "Color": "Black", "Size": "M" } },
+            { id: "53594513375498", title: "Black / L", price: 10.82, options: { "Color": "Black", "Size": "L" } },
+            { id: "53594513735946", title: "Black / XL", price: 10.82, options: { "Color": "Black", "Size": "XL" } },
+            { id: "53594513703178", title: "Black / XXL", price: 10.82, options: { "Color": "Black", "Size": "XXL" } },
+            { id: "53594513801482", title: "Black / XXXL", price: 10.82, options: { "Color": "Black", "Size": "XXXL" } },
+            { id: "53594514030858", title: "Navy Blue / S", price: 10.82, options: { "Color": "Navy Blue", "Size": "S" } },
+            { id: "53594514129162", title: "Navy Blue / M", price: 10.82, options: { "Color": "Navy Blue", "Size": "M" } },
+            { id: "53594514096394", title: "Navy Blue / L", price: 10.82, options: { "Color": "Navy Blue", "Size": "L" } },
+            { id: "53594514194698", title: "Navy Blue / XL", price: 10.82, options: { "Color": "Navy Blue", "Size": "XL" } },
+            { id: "53594514161930", title: "Navy Blue / XXL", price: 10.82, options: { "Color": "Navy Blue", "Size": "XXL" } },
+            { id: "53594513342730", title: "Navy Blue / XXXL", price: 10.82, options: { "Color": "Navy Blue", "Size": "XXXL" } },
+            { id: "53594513441034", title: "Gray / S", price: 10.82, options: { "Color": "Gray", "Size": "S" } },
+            { id: "53594513539338", title: "Gray / M", price: 10.82, options: { "Color": "Gray", "Size": "M" } },
+            { id: "53594513506570", title: "Gray / L", price: 10.82, options: { "Color": "Gray", "Size": "L" } },
+            { id: "53594513604874", title: "Gray / XL", price: 10.82, options: { "Color": "Gray", "Size": "XL" } },
+            { id: "53594513572106", title: "Gray / XXL", price: 10.82, options: { "Color": "Gray", "Size": "XXL" } },
+            { id: "53594513670410", title: "Gray / XXXL", price: 10.82, options: { "Color": "Gray", "Size": "XXXL" } },
+            { id: "53594514358538", title: "Red / S", price: 10.82, options: { "Color": "Red", "Size": "S" } },
+            { id: "53594514456842", title: "Red / M", price: 10.82, options: { "Color": "Red", "Size": "M" } },
+            { id: "53594514424074", title: "Red / L", price: 10.82, options: { "Color": "Red", "Size": "L" } },
+            { id: "53594513998090", title: "Red / XL", price: 10.82, options: { "Color": "Red", "Size": "XL" } },
+            { id: "53594513965322", title: "Red / XXL", price: 10.82, options: { "Color": "Red", "Size": "XXL" } },
+            { id: "53594514063626", title: "Red / XXXL", price: 10.82, options: { "Color": "Red", "Size": "XXXL" } }
+        ]
     }
 ];
 
-// Sanitizzazione HTML per prevenire DOM XSS
+// Sanitization to prevent XSS
 function escapeHTML(str) {
     return String(str).replace(/[&<>'"]/g, 
         tag => ({
@@ -56,37 +104,85 @@ function escapeHTML(str) {
 function loadDefaultProducts() {
     if (loadedProducts.length === 0) {
         loadedProducts = DEFAULT_PRODUCTS;
+        initDefaultVariants(loadedProducts);
         renderProductsUI(loadedProducts);
     }
 }
 
-// 1. Inizializzazione e Sincronizzazione Configurazione
+function initDefaultVariants(products) {
+    products.forEach(p => {
+        const pId = String(p.id);
+        if (!selectedVariantsMap[pId]) {
+            selectedVariantsMap[pId] = {};
+        }
+        if (p.options && p.options.length > 0) {
+            p.options.forEach(opt => {
+                if (!selectedVariantsMap[pId][opt.name] && opt.values && opt.values.length > 0) {
+                    selectedVariantsMap[pId][opt.name] = opt.values[0];
+                }
+            });
+        }
+    });
+}
+
+// Dynamically extract real options & variants from Shopify item JSON
+function parseShopifyVariants(item) {
+    const rawVariants = item.variants || [];
+    const rawOptions = item.options || [];
+
+    // Filter out generic "Title" with "Default Title"
+    const options = rawOptions
+        .filter(o => o.name && !(o.name.toLowerCase() === "title" && o.values?.length === 1 && o.values[0] === "Default Title"))
+        .map(o => ({
+            name: String(o.name).trim(),
+            values: (o.values || []).map(v => String(v).trim())
+        }));
+
+    const variants = rawVariants.map(v => {
+        const vOptMap = {};
+        rawOptions.forEach((opt, idx) => {
+            const val = v[`option${idx + 1}`];
+            if (val && opt.name) {
+                vOptMap[String(opt.name).trim()] = String(val).trim();
+            }
+        });
+
+        return {
+            id: String(v.id),
+            title: v.title,
+            price: parseFloat(v.price || 0),
+            options: vOptMap
+        };
+    });
+
+    return { options, variants };
+}
+
+// 1. Initialization and Config Routing
 async function initRouting() {
     try {
         const response = await fetch(`${NETLIFY_API_URL}/mode`);
         if (response.ok) {
             const remoteConfig = await response.json();
             
-            // Aggiorna solo se la configurazione remota è valida
             if (remoteConfig.mode) currentConfig.mode = remoteConfig.mode;
             if (remoteConfig.shopifyUrl && !remoteConfig.shopifyUrl.includes("tuo-shop")) {
                 currentConfig.shopifyUrl = remoteConfig.shopifyUrl;
             }
             if (remoteConfig.redirectUrl) currentConfig.redirectUrl = remoteConfig.redirectUrl;
             
-            // Reindirizzamento se la modalità è 'redirect'
             if (currentConfig.mode === "redirect" && currentConfig.redirectUrl) {
                 try {
-                    const url = new URL(currentConfig.redirectUrl);
+                    new URL(currentConfig.redirectUrl);
                     window.location.href = currentConfig.redirectUrl;
                     return;
                 } catch(e) {
-                    console.error("URL di redirect non valido.");
+                    console.error("Invalid redirect URL.");
                 }
             }
         }
     } catch (error) {
-        console.warn("Utilizzo configurazione locale di fallback:", error);
+        console.warn("Using local fallback config:", error);
     }
 
     if (currentConfig.mode === "shopify") {
@@ -100,11 +196,10 @@ async function initRouting() {
     }
 }
 
-// 2. Caricamento Prodotti DA SHOPIFY (Con fallback multi-livello per CORS e offline)
+// 2. Fetch Products FROM SHOPIFY
 async function loadProductsFromShopify() {
     let rawProducts = null;
 
-    // Livello 1: Fetch diretto da Shopify
     try {
         const res = await fetch(`${currentConfig.shopifyUrl}/products.json`);
         if (res.ok) {
@@ -114,10 +209,9 @@ async function loadProductsFromShopify() {
             }
         }
     } catch (err) {
-        console.warn("Fetch diretto Shopify bloccato da CORS o offline:", err);
+        console.warn("Direct Shopify fetch blocked by CORS or offline:", err);
     }
 
-    // Livello 2: Proxy Server-Side Netlify Function (Bypassa CORS completamente)
     if (!rawProducts) {
         try {
             const res = await fetch(`${NETLIFY_API_URL}/shopify-products`);
@@ -128,30 +222,35 @@ async function loadProductsFromShopify() {
                 }
             }
         } catch (err) {
-            console.warn("Proxy Netlify non raggiungibile:", err);
+            console.warn("Netlify proxy unreachable:", err);
         }
     }
 
-    // Processamento dei prodotti ricevuti
     if (rawProducts && rawProducts.length > 0) {
-        loadedProducts = rawProducts.map((item, index) => ({
-            id: String(item.id),
-            variantId: item.variants?.[0]?.id ? String(item.variants[0].id) : null, 
-            title: item.title,
-            price: parseFloat(item.variants?.[0]?.price || 0),
-            description: item.body_html ? item.body_html.replace(/<[^>]*>?/gm, '') : 'Nessuna descrizione disponibile.',
-            image: item.images?.[0]?.src || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80',
-            is_hero: index === 0
-        }));
+        loadedProducts = rawProducts.map((item, index) => {
+            const parsed = parseShopifyVariants(item);
+            return {
+                id: String(item.id),
+                variantId: item.variants?.[0]?.id ? String(item.variants[0].id) : null, 
+                title: item.title,
+                price: parseFloat(item.variants?.[0]?.price || 0),
+                description: item.body_html ? item.body_html.replace(/<[^>]*>?/gm, '') : 'No description available.',
+                image: item.images?.[0]?.src || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80',
+                is_hero: index === 0,
+                options: parsed.options,
+                variants: parsed.variants
+            };
+        });
 
+        initDefaultVariants(loadedProducts);
         renderProductsUI(loadedProducts);
     } else {
-        console.warn("Attivazione fallback prodotti Shopify reali pre-caricati.");
+        console.warn("Fallback to default pre-loaded Shopify products.");
         loadDefaultProducts();
     }
 }
 
-// 3. Caricamento Prodotti DAL SERVER PYTHON
+// 3. Fetch Products FROM PYTHON SERVER
 async function loadProductsFromPython() {
     try {
         const res = await fetch(`${currentConfig.pythonServerUrl}/api/products`);
@@ -166,12 +265,15 @@ async function loadProductsFromPython() {
             price: parseFloat(item.price),
             description: item.description,
             image: item.image,
-            is_hero: item.is_hero || false
+            is_hero: item.is_hero || false,
+            options: item.options || [],
+            variants: item.variants || []
         }));
 
+        initDefaultVariants(loadedProducts);
         renderProductsUI(loadedProducts);
     } catch (err) {
-        console.warn("Impossibile caricare dal server Python, uso prodotti Shopify reali:", err);
+        console.warn("Could not load from Python server, using default catalog:", err);
         loadDefaultProducts();
     }
 }
@@ -179,11 +281,59 @@ async function loadProductsFromPython() {
 let currentSlide = 0;
 let slideInterval = null;
 
-// 4. Renderizzazione dinamica dell'Interfaccia Utente (Hero Carousel & Catalogo)
+// Variant selection handler
+window.selectVariantOption = function selectVariantOption(btn, productId, optName, optVal) {
+    const pId = String(productId);
+    if (!selectedVariantsMap[pId]) {
+        selectedVariantsMap[pId] = {};
+    }
+    selectedVariantsMap[pId][optName] = optVal;
+
+    // Update UI active class in the button parent container
+    const parentContainer = btn.parentElement;
+    if (parentContainer) {
+        parentContainer.querySelectorAll('.variant-pill').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+    }
+};
+
+// Render Dynamic Variant Option Pickers
+function renderVariantPickersHTML(product) {
+    if (!product.options || product.options.length === 0) return '';
+
+    const pId = String(product.id);
+    const sel = selectedVariantsMap[pId] || {};
+
+    const rowsHTML = product.options.map(opt => {
+        const activeVal = sel[opt.name] || opt.values[0];
+        const pillsHTML = opt.values.map(val => `
+            <button type="button" 
+                    class="variant-pill ${val.toLowerCase() === String(activeVal).toLowerCase() ? 'selected' : ''}" 
+                    onclick="selectVariantOption(this, '${escapeHTML(pId)}', '${escapeHTML(opt.name)}', '${escapeHTML(val)}')">
+                ${escapeHTML(val)}
+            </button>
+        `).join('');
+
+        return `
+            <div class="variant-row">
+                <span class="variant-label">${escapeHTML(opt.name)}:</span>
+                <div class="variant-options">${pillsHTML}</div>
+            </div>
+        `;
+    }).join('');
+
+    return `
+        <div class="variants-picker-container">
+            ${rowsHTML}
+        </div>
+    `;
+}
+
+// 4. Render UI (Hero Carousel & Catalog Grid)
 function renderProductsUI(products) {
     if (!products || products.length === 0) return;
 
-    // Iniezione Hero Carousel
+    // Hero Carousel
     const track = document.getElementById('carousel-track');
     const indicators = document.getElementById('carousel-indicators');
     if (track && indicators) {
@@ -193,24 +343,25 @@ function renderProductsUI(products) {
                     <img src="${escapeHTML(prod.image)}" alt="${escapeHTML(prod.title)}">
                 </div>
                 <div class="hero-content">
-                    <span class="badge">${prod.is_hero ? 'Best Seller del Mese' : 'Nuova Collezione'}</span>
+                    <span class="badge">${prod.is_hero ? 'Best Seller' : 'New Arrival'}</span>
                     <h1 class="searchable-title">${escapeHTML(prod.title)}</h1>
                     <p class="hero-description">${escapeHTML(prod.description)}</p>
+                    
+                    ${renderVariantPickersHTML(prod)}
+
                     <div class="price">€ ${prod.price.toFixed(2)}</div>
                     <div class="btn-container">
-                        <button class="btn btn-primary" onclick="buyNow('${escapeHTML(prod.id)}')">Acquista Ora</button>
-                        <button class="btn btn-secondary" onclick="addToCart('${escapeHTML(prod.id)}')">Aggiungi al carrello</button>
+                        <button class="btn btn-primary" onclick="buyNow('${escapeHTML(prod.id)}')">Buy Now</button>
+                        <button class="btn btn-secondary" onclick="addToCart('${escapeHTML(prod.id)}')">Add to Cart</button>
                     </div>
                 </div>
             </div>
         `).join('');
 
-        // Tre puntini sotto il carousel
         indicators.innerHTML = products.map((_, index) => `
-            <span class="dot ${index === 0 ? 'active' : ''}" onclick="goToSlide(${index})" title="Vai alla diapositiva ${index + 1}"></span>
+            <span class="dot ${index === 0 ? 'active' : ''}" onclick="goToSlide(${index})" title="Go to slide ${index + 1}"></span>
         `).join('');
         
-        // Pausa dello scorrimento automatico al passaggio del mouse
         const heroSection = document.getElementById('hero-section');
         if (heroSection && !heroSection.dataset.hoverBound) {
             heroSection.addEventListener('mouseenter', stopCarousel);
@@ -218,26 +369,32 @@ function renderProductsUI(products) {
             heroSection.dataset.hoverBound = 'true';
         }
 
-        // Inizializza carousel e avvia scorrimento automatico
         currentSlide = 0;
         updateCarousel();
         startCarousel();
     }
 
-    // Iniezione Griglia Catalogo
+    // Product Grid (Vertical Showcases)
     const gridContainer = document.getElementById('product-grid');
     if (gridContainer) {
         gridContainer.innerHTML = products.map(prod => `
-            <div class="product-card">
-                <div>
-                    <img src="${escapeHTML(prod.image)}" alt="${escapeHTML(prod.title)}">
+            <div class="product-card" data-id="${escapeHTML(prod.id)}">
+                <div class="product-card-top">
+                    <div class="product-image-box">
+                        <img src="${escapeHTML(prod.image)}" alt="${escapeHTML(prod.title)}">
+                        <span class="card-badge">${prod.is_hero ? 'TOP' : 'NEW'}</span>
+                    </div>
                     <h3 class="searchable-title">${escapeHTML(prod.title)}</h3>
+                    <p class="product-card-desc">${escapeHTML(prod.description)}</p>
                 </div>
-                <div>
+                
+                <div class="product-card-bottom">
+                    ${renderVariantPickersHTML(prod)}
+                    
                     <div class="price">€ ${prod.price.toFixed(2)}</div>
                     <div class="btn-container">
-                        <button class="btn btn-primary" onclick="buyNow('${escapeHTML(prod.id)}')">Acquista</button>
-                        <button class="btn btn-secondary" onclick="addToCart('${escapeHTML(prod.id)}')">Aggiungi</button>
+                        <button class="btn btn-primary" onclick="buyNow('${escapeHTML(prod.id)}')">Buy Now</button>
+                        <button class="btn btn-secondary" onclick="addToCart('${escapeHTML(prod.id)}')">Add to Cart</button>
                     </div>
                 </div>
             </div>
@@ -245,7 +402,7 @@ function renderProductsUI(products) {
     }
 }
 
-// Funzioni per il Carousel
+// Carousel logic
 function updateCarousel() {
     const slides = document.querySelectorAll('.carousel-slide');
     const dots = document.querySelectorAll('.dot');
@@ -292,34 +449,111 @@ function resetCarouselTimer() {
     startCarousel();
 }
 
-// 5. Azione Acquisto Diretto
+// Match selected options to exact variant ID
+function getSelectedVariant(product) {
+    const pId = String(product.id);
+    const sel = selectedVariantsMap[pId] || {};
+
+    if (product.variants && product.variants.length > 0) {
+        // Find exact variant where all selected option values match
+        let match = product.variants.find(v => {
+            if (!v.options) return false;
+            return Object.entries(sel).every(([optName, optVal]) => {
+                const vVal = v.options[optName];
+                return vVal && String(vVal).toLowerCase() === String(optVal).toLowerCase();
+            });
+        });
+
+        // Fallback: match partial options if exact full match wasn't found
+        if (!match) {
+            match = product.variants.find(v => {
+                if (!v.options) return false;
+                return Object.entries(sel).some(([optName, optVal]) => {
+                    const vVal = v.options[optName];
+                    return vVal && String(vVal).toLowerCase() === String(optVal).toLowerCase();
+                });
+            });
+        }
+
+        if (!match) {
+            match = product.variants[0];
+        }
+
+        if (match && match.id) {
+            return {
+                id: String(match.id),
+                title: match.title,
+                price: match.price || product.price,
+                selectedOptions: { ...sel }
+            };
+        }
+    }
+
+    const fallbackVariantId = String(product.variantId || product.id);
+    return {
+        id: fallbackVariantId,
+        title: product.title,
+        price: product.price,
+        selectedOptions: { ...sel }
+    };
+}
+
+// 5. Direct Purchase Action
 function buyNow(productId) {
-    const product = loadedProducts.find(p => p.id === String(productId));
+    const product = loadedProducts.find(p => String(p.id) === String(productId));
     if (!product) return;
 
-    if (currentConfig.mode === "shopify" || product.variantId) {
-        if (product.variantId) {
-            window.location.href = `${currentConfig.shopifyUrl}/cart/${product.variantId}:1`;
-        } else {
-            window.location.href = currentConfig.shopifyUrl;
-        }
+    const variant = getSelectedVariant(product);
+    const targetVariantId = variant.id || product.variantId || product.variants?.[0]?.id;
+    const shopifyBase = (currentConfig.shopifyUrl || "https://hkadip-1s.myshopify.com").replace(/\/$/, "");
+
+    if (targetVariantId) {
+        window.location.href = `${shopifyBase}/cart/${targetVariantId}:1`;
+    } else {
+        window.location.href = shopifyBase;
+    }
+}
+
+// 6. Cart Management
+function addToCart(productId) {
+    const product = loadedProducts.find(p => String(p.id) === String(productId));
+    if (!product) return;
+
+    const variant = getSelectedVariant(product);
+
+    cart.push({ 
+        id: String(product.id),
+        variantId: String(variant.id || product.variantId),
+        name: product.title, 
+        options: variant.selectedOptions,
+        price: variant.price || product.price,
+        image: product.image
+    });
+    
+    updateCartCount();
+
+    if (currentConfig.mode === "shopify") {
+        const shopifyCartUrl = generateShopifyCartUrl(cart);
+        window.location.href = shopifyCartUrl;
         return;
     }
 
-    cart.push({ name: product.title, price: product.price });
-    updateCartCount();
-    switchView('cart');
+    showToast("Item added to cart!");
 }
 
-// 6. Gestione Carrello Locale
-function addToCart(productId) {
-    const product = loadedProducts.find(p => p.id === String(productId));
-    if (!product) return;
-
-    cart.push({ name: product.title, price: product.price });
-    updateCartCount();
-    showToast("Aggiunto al carrello!");
+function openCartView() {
+    if (currentConfig.mode === "shopify") {
+        const shopifyBase = (currentConfig.shopifyUrl || "https://hkadip-1s.myshopify.com").replace(/\/$/, "");
+        if (cart.length > 0) {
+            window.location.href = generateShopifyCartUrl(cart);
+        } else {
+            window.location.href = `${shopifyBase}/cart`;
+        }
+    } else {
+        switchView('cart');
+    }
 }
+window.openCartView = openCartView;
 
 function removeFromCart(index) {
     cart.splice(index, 1);
@@ -334,6 +568,28 @@ function updateCartCount() {
     }
 }
 
+function generateShopifyCartUrl(cartItems) {
+    const shopifyBase = (currentConfig.shopifyUrl || "https://hkadip-1s.myshopify.com").replace(/\/$/, "");
+    if (!cartItems || cartItems.length === 0) return shopifyBase;
+
+    const variantCounts = {};
+    cartItems.forEach(item => {
+        const vId = item.variantId || item.id;
+        if (vId) {
+            variantCounts[vId] = (variantCounts[vId] || 0) + 1;
+        }
+    });
+
+    const permalinkItems = Object.entries(variantCounts)
+        .map(([vId, qty]) => `${vId}:${qty}`)
+        .join(',');
+
+    if (permalinkItems) {
+        return `${shopifyBase}/cart/${permalinkItems}`;
+    }
+    return `${shopifyBase}/cart`;
+}
+
 function renderCart() {
     const container = document.getElementById('cart-items-container');
     const summarySection = document.getElementById('cart-summary-section');
@@ -341,7 +597,7 @@ function renderCart() {
     if (!container || !summarySection) return;
 
     if (cart.length === 0) {
-        container.innerHTML = '<p class="empty-cart-msg">Il tuo carrello è vuoto.</p>';
+        container.innerHTML = '<p class="empty-cart-msg">Your shopping cart is empty.</p>';
         summarySection.style.display = 'none';
         return;
     }
@@ -351,62 +607,68 @@ function renderCart() {
 
     container.innerHTML = cart.map((item, index) => {
         total += item.price;
+        const optionsTags = item.options ? Object.entries(item.options).map(([k, v]) => `<span class="variant-tag">${escapeHTML(k)}: ${escapeHTML(v)}</span>`).join('') : '';
+
         return `
             <div class="cart-item">
-                <div class="cart-item-details">
-                    <h4>${escapeHTML(item.name)}</h4>
-                    <p>€ ${item.price.toFixed(2)}</p>
+                <div class="cart-item-left">
+                    ${item.image ? `<img src="${escapeHTML(item.image)}" alt="${escapeHTML(item.name)}" class="cart-item-thumb">` : ''}
+                    <div class="cart-item-details">
+                        <h4>${escapeHTML(item.name)}</h4>
+                        <div class="cart-item-meta">
+                            ${optionsTags}
+                        </div>
+                        <p class="cart-item-price">€ ${item.price.toFixed(2)}</p>
+                    </div>
                 </div>
-                <button class="remove-btn" onclick="removeFromCart(${index})">Rimuovi</button>
+                <button class="remove-btn" onclick="removeFromCart(${index})">Remove</button>
             </div>
         `;
     }).join('');
 
     const cartTotalPriceElement = document.getElementById('cart-total-price');
     if (cartTotalPriceElement) {
-        cartTotalPriceElement.innerText = `Totale: € ${total.toFixed(2)}`;
+        cartTotalPriceElement.innerText = `Total: € ${total.toFixed(2)}`;
     }
 }
 
-// 7. Invio Ordine / Checkout
+// 7. Order Checkout directly to Shopify Cart Permalink
 async function checkout() {
-    if (cart.length === 0) return alert("Il tuo carrello è vuoto!");
+    if (cart.length === 0) return alert("Your cart is empty!");
 
-    if (currentConfig.mode === "shopify") {
-        window.location.href = currentConfig.shopifyUrl;
+    const totalAmount = cart.reduce((sum, item) => sum + item.price, 0);
+    const shopifyCartUrl = generateShopifyCartUrl(cart);
+
+    try {
+        await fetch(`${NETLIFY_API_URL}/checkout`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                timestamp: new Date().toISOString(),
+                items: cart,
+                total: totalAmount
+            })
+        });
+    } catch (err) {
+        console.warn("Checkout log warning:", err);
+    }
+
+    // Redirect directly to Shopify cart permalink with all variant items & quantities
+    window.location.href = shopifyCartUrl;
+}
+
+// 8. View Switching
+function switchView(viewName) {
+    if (viewName === 'cart' && currentConfig.mode === "shopify") {
+        const shopifyBase = (currentConfig.shopifyUrl || "https://hkadip-1s.myshopify.com").replace(/\/$/, "");
+        if (cart.length > 0) {
+            window.location.href = generateShopifyCartUrl(cart);
+        } else {
+            window.location.href = `${shopifyBase}/cart`;
+        }
         return;
     }
 
-    const totalAmount = cart.reduce((sum, item) => sum + item.price, 0);
-    const payload = {
-        timestamp: new Date().toISOString(),
-        items: cart,
-        total: totalAmount
-    };
-
-    try {
-        const res = await fetch(`${NETLIFY_API_URL}/checkout`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-        });
-
-        if (res.ok) {
-            alert("Ordine completato con successo!");
-            cart = [];
-            updateCartCount();
-            switchView('home');
-        } else {
-            alert("Si è verificato un errore durante l'invio dell'ordine.");
-        }
-    } catch (err) {
-        console.error("Errore di rete durante il checkout:", err);
-        alert("Impossibile connettersi al server per completare l'ordine.");
-    }
-}
-
-// 8. Navigazione tra le Viste (Home e Carrello)
-function switchView(viewName) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     
     if (viewName === 'home') {
@@ -420,7 +682,7 @@ function switchView(viewName) {
     window.scrollTo(0, 0);
 }
 
-// 9. Notifiche Toast
+// 9. Toast Notification
 function showToast(message) {
     const toast = document.getElementById('toast');
     if (!toast) return;
@@ -432,7 +694,7 @@ function showToast(message) {
     }, 2500);
 }
 
-// 10. Ricerca e Filtro Prodotti in Tempo Reale
+// 10. Real-time Product Search & Filter
 window.filterProducts = function filterProducts() {
     const searchInput = document.getElementById('search-input');
     if (!searchInput) return;

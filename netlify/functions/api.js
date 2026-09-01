@@ -101,13 +101,17 @@ exports.handler = async (event) => {
     if (method === "POST" && path.endsWith("/checkout")) {
         const orderData = JSON.parse(event.body || "{}");
         if (TELEGRAM_TOKEN && TELEGRAM_ADMIN_CHAT_ID) {
-            const items = (orderData.items || []).map(i => `• ${i.name} (€${i.price?.toFixed(2) || '0.00'})`).join("\n");
+            const items = (orderData.items || []).map(i => {
+                const details = [i.size ? `Size: ${i.size}` : '', i.color ? `Color: ${i.color}` : ''].filter(Boolean).join(', ');
+                const variantText = details ? ` (${details})` : '';
+                return `• ${i.name}${variantText} (€${i.price?.toFixed(2) || '0.00'})`;
+            }).join("\n");
             await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
                 method: "POST", 
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ 
                     chat_id: TELEGRAM_ADMIN_CHAT_ID, 
-                    text: `🛍️ NUOVO ORDINE!\n\n${items}\n\nTotale: €${orderData.total?.toFixed(2) || '0.00'}` 
+                    text: `🛍️ NEW ORDER!\n\n${items}\n\nTotal: €${orderData.total?.toFixed(2) || '0.00'}` 
                 })
             });
         }

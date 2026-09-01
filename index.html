@@ -1,55 +1,69 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-Commerce - Collezione Esclusiva</title>
+    <title>HKADIP STORE - Exclusive Collection</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <header>
-        <div class="logo" onclick="switchView('home')">E-Commerce</div>
+        <div class="logo" onclick="switchView('home')">HKADIP STORE</div>
         <div class="search-bar-container">
             <div class="search-wrapper">
-                <input type="text" id="search-input" class="search-input" placeholder="Cerca articoli..." onkeyup="filterProducts()">
+                <input type="text" id="search-input" class="search-input" placeholder="Search products..." onkeyup="filterProducts()">
                 <span class="search-icon-symbol">🔍</span>
             </div>
         </div>
         <div class="header-right">
-            <button class="cart-icon" onclick="switchView('cart')">Carrello (<span id="cart-count">0</span>)</button>
+            <button class="cart-icon" onclick="openCartView()">Cart (<span id="cart-count">0</span>)</button>
         </div>
     </header>
 
     <div id="home-view" class="view active">
         <section class="hero-carousel-container" id="hero-section">
+            <button class="carousel-control prev" onclick="moveCarousel(-1)" aria-label="Previous Slide">❮</button>
             <div class="carousel-track" id="carousel-track">
                 <!-- Carousel slides -->
             </div>
+            <button class="carousel-control next" onclick="moveCarousel(1)" aria-label="Next Slide">❯</button>
             <div class="carousel-indicators" id="carousel-indicators"></div>
         </section>
 
         <section class="catalog">
-            <h2>Tutti i Prodotti</h2>
+            <h2>All Products</h2>
             <div class="product-grid" id="product-grid"></div>
         </section>
     </div>
 
     <div id="cart-view" class="view">
         <div class="cart-page">
-            <h2>Il tuo Carrello</h2>
+            <h2>Your Shopping Cart</h2>
             <div class="cart-items-list" id="cart-items-container"></div>
             <div class="cart-summary" id="cart-summary-section">
-                <div class="cart-total" id="cart-total-price">Totale: € 0,00</div>
-                <button class="btn btn-primary" onclick="checkout()" style="max-width: 250px;">Procedi all'Ordine</button>
+                <div class="cart-total" id="cart-total-price">Total: € 0.00</div>
+                <button class="btn btn-primary" onclick="checkout()" style="max-width: 250px;">Proceed to Checkout</button>
             </div>
         </div>
     </div>
 
+    <!-- Advertising Space at Bottom of Page -->
+    <section class="ad-banner-section">
+        <div class="ad-banner">
+            <div class="ad-badge">SPONSORED PROMO</div>
+            <div class="ad-content">
+                <h3>🔥 Limited Offer: Get 20% OFF Your Order!</h3>
+                <p>Use discount code <span class="promo-code">HKADIP20</span> at checkout for instant savings.</p>
+            </div>
+            <button class="btn btn-ad" onclick="switchView('home'); window.scrollTo({top: document.querySelector('.catalog').offsetTop - 80, behavior: 'smooth'});">Shop Now</button>
+        </div>
+    </section>
+
     <footer>
-        <p>&copy; 2026 E-Commerce. Tutti i diritti riservati.</p>
+        <p>&copy; 2026 HKADIP STORE. All rights reserved.</p>
     </footer>
 
-    <div id="toast" class="toast">Prodotto aggiunto al carrello!</div>
+    <div id="toast" class="toast">Item added to cart!</div>
     <script src="js/app.js" defer></script>
 </body>
 </html>
