@@ -1,69 +1,133 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HKADIP STORE - Exclusive Collection</title>
+    <meta name="description" content="HKADIP STORE — prodotti esclusivi, innovativi e ad alte prestazioni.">
+    <title>HKADIP STORE - Collezione esclusiva</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <header>
-        <div class="logo" onclick="switchView('home')">HKADIP STORE</div>
+        <a href="#" class="logo" onclick="switchView('home'); return false;">HKADIP STORE</a>
         <div class="search-bar-container">
             <div class="search-wrapper">
-                <input type="text" id="search-input" class="search-input" placeholder="Search products..." onkeyup="filterProducts()">
-                <span class="search-icon-symbol">🔍</span>
+                <input type="search" id="search-input" class="search-input" placeholder="Cerca prodotti..." data-i18n-placeholder="search_placeholder" oninput="filterProducts()">
+                <span class="search-icon-symbol" aria-hidden="true">🔍</span>
             </div>
         </div>
         <div class="header-right">
-            <button class="cart-icon" onclick="openCartView()">Cart (<span id="cart-count">0</span>)</button>
+            <div class="lang-selector-wrapper" id="lang-selector-wrapper">
+                <button type="button" class="lang-selector-btn" id="lang-selector-btn" aria-haspopup="true" aria-expanded="false" title="Cambia lingua">
+                    <span class="flag-dot" id="current-flag-dot"><span class="flag-icon">🇮🇹</span></span>
+                    <span class="lang-code" id="current-lang-code">IT</span>
+                    <svg class="lang-arrow" viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2.5" fill="none"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
+                <div class="lang-dropdown-menu" id="lang-dropdown-menu" role="menu">
+                    <button type="button" class="lang-option active" data-lang="it"><span class="flag-dot"><span class="flag-icon">🇮🇹</span></span><span>Italiano (IT)</span></button>
+                    <button type="button" class="lang-option" data-lang="en"><span class="flag-dot"><span class="flag-icon">🇬🇧</span></span><span>English (EN)</span></button>
+                    <button type="button" class="lang-option" data-lang="fr"><span class="flag-dot"><span class="flag-icon">🇫🇷</span></span><span>Français (FR)</span></button>
+                    <button type="button" class="lang-option" data-lang="es"><span class="flag-dot"><span class="flag-icon">🇪🇸</span></span><span>Español (ES)</span></button>
+                    <button type="button" class="lang-option" data-lang="de"><span class="flag-dot"><span class="flag-icon">🇩🇪</span></span><span>Deutsch (DE)</span></button>
+                </div>
+            </div>
+            <a class="cart-icon" href="#" onclick="openCartView(); return false;" aria-label="Carrello">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                <span class="cart-badge-count" id="cart-count">0</span>
+            </a>
         </div>
     </header>
 
-    <div id="home-view" class="view active">
-        <section class="hero-carousel-container" id="hero-section">
-            <button class="carousel-control prev" onclick="moveCarousel(-1)" aria-label="Previous Slide">❮</button>
-            <div class="carousel-track" id="carousel-track">
-                <!-- Carousel slides -->
-            </div>
-            <button class="carousel-control next" onclick="moveCarousel(1)" aria-label="Next Slide">❯</button>
-            <div class="carousel-indicators" id="carousel-indicators"></div>
-        </section>
+    <main id="main-content">
+        <div id="home-view" class="page-view active">
+            <section class="hero-carousel-container" id="hero-section">
+                <button class="carousel-control prev" onclick="moveCarousel(-1)" aria-label="Prodotto precedente">❮</button>
+                <div class="carousel-track" id="carousel-track"></div>
+                <button class="carousel-control next" onclick="moveCarousel(1)" aria-label="Prodotto successivo">❯</button>
+                <div class="carousel-indicators" id="carousel-indicators"></div>
+            </section>
 
-        <section class="catalog">
-            <h2>All Products</h2>
-            <div class="product-grid" id="product-grid"></div>
-        </section>
-    </div>
+            <section class="catalog">
+                <h2 data-i18n="catalog_heading">Tutti i Prodotti</h2>
+                <div class="product-grid" id="product-grid"></div>
+                <p id="search-empty" class="search-empty" data-i18n="no_products" hidden>Nessun prodotto trovato.</p>
+            </section>
 
-    <div id="cart-view" class="view">
-        <div class="cart-page">
-            <h2>Your Shopping Cart</h2>
-            <div class="cart-items-list" id="cart-items-container"></div>
-            <div class="cart-summary" id="cart-summary-section">
-                <div class="cart-total" id="cart-total-price">Total: € 0.00</div>
-                <button class="btn btn-primary" onclick="checkout()" style="max-width: 250px;">Proceed to Checkout</button>
+            <section class="ad-banner-section">
+                <div class="ad-banner">
+                    <div>
+                        <div class="ad-badge" data-i18n="ad_badge">PROMO SPONSORIZZATA</div>
+                        <div class="ad-content">
+                            <h3 data-i18n="ad_title">🔥 Offerta Limitata: Ottieni il 20% DI SCONTO sul tuo ordine!</h3>
+                            <p data-i18n="ad_subtitle">Usa il codice PROMO20 alla cassa.</p>
+                        </div>
+                    </div>
+                    <button class="btn btn-ad" data-i18n="ad_button" onclick="scrollToCatalog()">Acquista Ora</button>
+                </div>
+            </section>
+        </div>
+
+        <div id="product-view" class="page-view">
+            <div class="product-page-section">
+                <div class="product-breadcrumb">
+                    <a href="#" class="back-link" onclick="switchView('home'); return false;">← <span data-i18n="back_to_catalog">Torna al Catalogo</span></a>
+                </div>
+                <div class="product-single-container">
+                    <div class="product-media-gallery">
+                        <div class="product-main-image-box"><img id="main-product-image" src="" alt=""></div>
+                        <div class="product-thumbnails" id="product-thumbnails"></div>
+                    </div>
+                    <div class="product-details-container">
+                        <div class="product-vendor">HYPERDRIP</div>
+                        <h1 class="product-title" id="detail-product-title"></h1>
+                        <div class="product-price-wrapper">
+                            <span class="product-price" id="detail-product-price"></span>
+                            <span class="stock-badge in-stock" data-i18n="in_stock">Disponibile</span>
+                        </div>
+                        <div class="product-description-short" id="detail-product-description"></div>
+                        <div class="variant-selectors-wrapper" id="detail-variant-selectors"></div>
+                        <div class="quantity-picker-wrapper">
+                            <label class="option-label" data-i18n="quantity">Quantità:</label>
+                            <div class="qty-control">
+                                <button type="button" class="qty-btn" onclick="adjustDetailQty(-1)" aria-label="Riduci quantità">−</button>
+                                <input type="number" id="detail-quantity" value="1" min="1" class="qty-input" aria-label="Quantità">
+                                <button type="button" class="qty-btn" onclick="adjustDetailQty(1)" aria-label="Aumenta quantità">+</button>
+                            </div>
+                        </div>
+                        <div class="product-action-buttons">
+                            <button type="button" class="btn btn-primary" onclick="addDetailToCart()" data-i18n="add_to_cart">🛒 Aggiungi al Carrello</button>
+                            <button type="button" class="btn btn-secondary buy-now-btn" onclick="buyDetailNow()" data-i18n="buy_now">⚡ Acquista Ora</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Advertising Space at Bottom of Page -->
-    <section class="ad-banner-section">
-        <div class="ad-banner">
-            <div class="ad-badge">SPONSORED PROMO</div>
-            <div class="ad-content">
-                <h3>🔥 Limited Offer: Get 20% OFF Your Order!</h3>
-                <p>Use discount code <span class="promo-code">HKADIP20</span> at checkout for instant savings.</p>
+        <div id="cart-view" class="page-view cart-view-shell">
+            <div class="cart-page">
+                <h2 data-i18n="cart_heading">Il tuo Carrello</h2>
+                <div class="cart-items-list" id="cart-items-container"></div>
+                <div class="cart-summary" id="cart-summary-section">
+                    <div class="cart-total-info"><span class="cart-total-label" data-i18n="total">Totale:</span><span class="cart-total" id="cart-total-price">€ 0,00</span></div>
+                    <button class="btn btn-primary" onclick="checkout()" data-i18n="proceed_checkout">Procedi al Checkout</button>
+                </div>
             </div>
-            <button class="btn btn-ad" onclick="switchView('home'); window.scrollTo({top: document.querySelector('.catalog').offsetTop - 80, behavior: 'smooth'});">Shop Now</button>
         </div>
-    </section>
+    </main>
 
-    <footer>
-        <p>&copy; 2026 HKADIP STORE. All rights reserved.</p>
+    <footer class="site-footer">
+        <div class="footer-container minimal-footer">
+            <div class="footer-brand"><h3 class="footer-logo">HKADIP STORE</h3></div>
+            <ul class="footer-links-inline">
+                <li><a href="#" onclick="switchView('home'); return false;" data-i18n="nav_home">Home</a></li>
+                <li><a href="#product-grid" onclick="switchView('home')" data-i18n="nav_catalog">Catalogo Prodotti</a></li>
+                <li><a href="#" onclick="openCartView(); return false;" data-i18n="nav_cart">Carrello</a></li>
+            </ul>
+            <div class="footer-bottom"><p>&copy; 2026 HKADIP STORE. <span data-i18n="footer_copyright">Tutti i diritti riservati.</span></p></div>
+        </div>
     </footer>
 
-    <div id="toast" class="toast">Item added to cart!</div>
+    <div id="toast" class="toast" role="status" aria-live="polite">Articolo aggiunto al carrello!</div>
     <script src="js/app.js" defer></script>
 </body>
 </html>
